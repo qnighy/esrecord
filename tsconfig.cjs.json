@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.build.json",
+  "compilerOptions": {
+    "module": "commonjs",
+    "outDir": "./cjs/dist",
+    "verbatimModuleSyntax": false,
+  },
+  "include": [
+    "src/**/*",
+  ],
+}
