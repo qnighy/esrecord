@@ -16,12 +16,13 @@ export function Record(arg: Record<string, unknown>): Record<string, unknown> {
 
 function createPrimitiveRecord(entries: [string, unknown][]): Record<string, unknown> {
   const rec: Record<string, unknown> = Object.create(null);
-  primitiveRecords.add(rec);
   for (const [key, value] of entries) {
     // It needs not be Object.defineProperty because the object
     // in question has no prototype.
     rec[key] = value;
   }
+  Object.freeze(rec);
+  primitiveRecords.add(rec);
   return rec;
 }
 
