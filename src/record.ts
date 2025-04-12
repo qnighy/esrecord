@@ -2,6 +2,10 @@ import { Interner } from "./interner.ts";
 import { isObject, primitiveRecords } from "./primitives.ts";
 
 const recordInterner = new Interner<readonly unknown[], Record<string, unknown>>();
+/**
+ * Represents the record object's [[RecordData]] internal slot.
+ */
+const recordDataRef = new WeakMap<Record<string, unknown>, Record<string, unknown>>();
 
 export function Record(arg: Record<string, unknown>): Record<string, unknown> {
   if (new.target != null) {
@@ -24,6 +28,24 @@ function createPrimitiveRecord(entries: [string, unknown][]): Record<string, unk
   Object.freeze(rec);
   primitiveRecords.add(rec);
   return rec;
+}
+
+/**
+ * Convert a Record primitive to a Record object.
+ */
+export function RecordToObject(record: Record<string, unknown>): Record<string, unknown> {
+  const obj = { ...record };
+  recordDataRef.set(obj, record);
+  Object.freeze(obj);
+  return obj;
+}
+
+/**
+ * Checks if the given object is a Record object,
+ * and if so, returns the Record primitive it wraps.
+ */
+export function getRecordPrimitive(maybeRecord: unknown): Record<string, unknown> | undefined {
+  return recordDataRef.get(maybeRecord as Record<string, unknown>);
 }
 
 function ToObject<T>(arg: T): T & object {

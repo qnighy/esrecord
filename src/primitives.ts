@@ -7,3 +7,7 @@ export function isObjectOriginal(value: unknown): value is object {
 export function isObject(value: unknown): value is object {
   return isObjectOriginal(value) && !primitiveRecords.has(value);
 }
+
+export function isPrimitiveRecord(value: unknown): boolean {
+  return primitiveRecords.has(value as object);
+}
