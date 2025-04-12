@@ -18,7 +18,7 @@ export function Record(arg: Record<string, unknown>): Record<string, unknown> {
   return recordInterner.intern(key, () => createPrimitiveRecord(entries));
 }
 
-Record.prototype = null;
+(Record as any).prototype = null;
 
 function createPrimitiveRecord(entries: [string, unknown][]): Record<string, unknown> {
   const rec: Record<string, unknown> = Object.create(null);
