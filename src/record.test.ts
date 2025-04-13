@@ -1,6 +1,7 @@
 import { describe, expect, it  } from "vitest";
 import { Record } from "./record.ts";
 import { ObjectCall } from "./polyfill-object.ts";
+import { Tuple } from "./tuple.ts";
 
 describe("Record", () => {
   it("returns the same value for the equivalent input", () => {
@@ -57,5 +58,55 @@ describe("Record", () => {
       "\uF900",
       "\uF901",
     ]);
+  });
+
+  it("ignores non-owned properties", () => {
+    const prototype = { b: 2 };
+    const obj = Object.assign(Object.create(prototype), { a: 1 });
+    // obj has a non-owned property "b"
+    expect(obj.b).toBe(2);
+
+    const rec = Record(obj);
+    expect(Object.keys(ObjectCall(rec))).toEqual(["a"]);
+  });
+
+  it("ignores non-enumerable properties", () => {
+    // ["a"] has a non-enumerable property "length"
+    expect(Object.getOwnPropertyDescriptor(["a"], "length")).toEqual({
+      value: 1,
+      writable: true,
+      enumerable: false,
+      configurable: false,
+    });
+
+    const rec = Record(["a"]);
+    expect(Object.keys(ObjectCall(rec))).toEqual(["0"]);
+  });
+
+  it("throws TypeError for Symbol property keys", () => {
+    expect(() => Record({ [Symbol("key")]: 1 })).toThrow(TypeError);
+  });
+
+  it("throws TypeError for property values that are objects", () => {
+    expect(() => Record({ a: {} })).toThrow(TypeError);
+  });
+
+  it("allow property values that are existing primitives", () => {
+    expect(() => Record({
+      undefined: undefined,
+      null: null,
+      boolean: false,
+      number: 1,
+      bigint: 1n,
+      string: "foo",
+      symbol: Symbol("foo"),
+    })).not.toThrow();
+  });
+
+  it("allow property values that are Record or Tuples", () => {
+    expect(() => Record({
+      record: Record({ a: 1 }),
+      tuple: Tuple(1, 2),
+    })).not.toThrow();
   });
 });
