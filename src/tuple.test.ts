@@ -116,3 +116,14 @@ describe("Tuple.of", () => {
     expect(tup1).toBe(tup2);
   });
 });
+
+describe("Tuple.prototype", () => {
+  it("is not writable, not enumerable, and not configurable", () => {
+    expect(Object.getOwnPropertyDescriptor(Tuple, "prototype")).toEqual({
+      value: Tuple.prototype,
+      writable: false,
+      enumerable: false,
+      configurable: false,
+    });
+  });
+});

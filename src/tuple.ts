@@ -39,6 +39,8 @@ export interface TupleConstructor {
    * @param items the list of items to create the Tuple from.
    */
   of<A extends any[]>(...items: A): ESTuple<A>;
+
+  prototype: readonly any[];
 }
 
 export const Tuple: TupleConstructor = function Tuple<A extends any[]>(...items: A): ESTuple<A> {
@@ -52,6 +54,8 @@ export const Tuple: TupleConstructor = function Tuple<A extends any[]>(...items:
   }
   return tupleInterner.intern(items, () => createPrimitiveTuple(items)) as ESTuple<A>;
 } as TupleConstructor;
+
+const tuplePrototype: readonly any[] = Object.create(null) as readonly any[];
 
 const tupleStaticMethods = {
   from(items: ArrayLike<unknown> | Iterable<unknown>, mapfn: ((v: unknown, k: number) => unknown) | undefined = undefined, thisArg: any = undefined): ESTuple<unknown[]> {
@@ -76,8 +80,6 @@ Object.defineProperty(Tuple, "of", {
   enumerable: false,
   configurable: true,
 });
-
-const tuplePrototype = Object.create(null);
 Object.defineProperty(Tuple, "prototype", {
   value: tuplePrototype,
   writable: false,
