@@ -95,7 +95,7 @@ describe("Record", () => {
     expect(() => Record({ a: {} })).toThrow(TypeError);
   });
 
-  it("allow property values that are existing primitives", () => {
+  it("allows property values that are existing primitives", () => {
     expect(() => Record({
       undefined: undefined,
       null: null,
@@ -107,7 +107,7 @@ describe("Record", () => {
     })).not.toThrow();
   });
 
-  it("allow property values that are Record or Tuples", () => {
+  it("allows property values that are Record or Tuples", () => {
     expect(() => Record({
       record: Record({ a: 1 }),
       tuple: Tuple(1, 2),
