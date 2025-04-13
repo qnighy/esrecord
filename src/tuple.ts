@@ -53,6 +53,30 @@ export const Tuple: TupleConstructor = function Tuple<A extends any[]>(...items:
   return tupleInterner.intern(items, () => createPrimitiveTuple(items)) as ESTuple<A>;
 } as TupleConstructor;
 
+const tupleStaticMethods = {
+  from(items: ArrayLike<unknown> | Iterable<unknown>, mapfn: ((v: unknown, k: number) => unknown) | undefined = undefined, thisArg: any = undefined): ESTuple<unknown[]> {
+    const arr = Array.from(items, mapfn!, thisArg);
+    return Tuple(...arr);
+  },
+
+  of(...items: unknown[]): ESTuple<unknown[]> {
+    return Tuple(...items);
+  },
+};
+
+Object.defineProperty(Tuple, "from", {
+  value: tupleStaticMethods.from,
+  writable: true,
+  enumerable: false,
+  configurable: true,
+});
+Object.defineProperty(Tuple, "of", {
+  value: tupleStaticMethods.of,
+  writable: true,
+  enumerable: false,
+  configurable: true,
+});
+
 const tuplePrototype = Object.create(null);
 Object.defineProperty(Tuple, "prototype", {
   value: tuplePrototype,

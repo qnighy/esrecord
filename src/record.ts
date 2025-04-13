@@ -44,7 +44,7 @@ export const Record: RecordConstructor = function Record<T>(arg: T): ESRecord<T>
   return recordInterner.intern(key, () => createPrimitiveRecord(entries)) as ESRecord<T>;
 } as RecordConstructor;
 
-const recordMethods = {
+const recordStaticMethods = {
   fromEntries<K extends string, V>(entries: Iterable<readonly [K, V]>): ESRecord<{ [k in K]?: V; }> {
     const obj = Object.fromEntries(entries);
     return Record(obj) as ESRecord<{ [k in K]?: V; }>;
@@ -62,13 +62,13 @@ Object.defineProperty(Record, "name", {
   configurable: true,
 });
 Object.defineProperty(Record, "fromEntries", {
-  value: recordMethods.fromEntries,
+  value: recordStaticMethods.fromEntries,
   writable: true,
   enumerable: false,
   configurable: true,
 });
 Object.defineProperty(Record, Symbol.hasInstance, {
-  value: recordMethods[Symbol.hasInstance],
+  value: recordStaticMethods[Symbol.hasInstance],
   writable: false,
   enumerable: false,
   configurable: true,

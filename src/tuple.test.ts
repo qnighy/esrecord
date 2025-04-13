@@ -62,3 +62,57 @@ describe("Tuple.name", () => {
     });
   });
 });
+
+describe("Tuple.from", () => {
+  it("is a writable, non-enumerable, and configurable property", () => {
+    expect(Object.getOwnPropertyDescriptor(Tuple, "from")).toEqual({
+      value: Tuple.from,
+      writable: true,
+      enumerable: false,
+      configurable: true,
+    });
+  });
+
+  it("cannot be called as a constructor", () => {
+    expect(() => new (Tuple.from as any)()).toThrow(TypeError);
+  });
+
+  it("generates a Tuple from an array", () => {
+    const tup1 = Tuple.from([1, 2]);
+    const tup2 = Tuple(1, 2);
+    expect(tup1).toBe(tup2);
+  });
+
+  it("generates a Tuple from an iterable", () => {
+    const tup1 = Tuple.from(new Set([1, 2]));
+    const tup2 = Tuple(1, 2);
+    expect(tup1).toBe(tup2);
+  });
+
+  it("generates a Tuple from an Array-like object", () => {
+    const tup1 = Tuple.from({ length: 2, 0: 1, 1: 2 });
+    const tup2 = Tuple(1, 2);
+    expect(tup1).toBe(tup2);
+  });
+});
+
+describe("Tuple.of", () => {
+  it("is a writable, non-enumerable, and configurable property", () => {
+    expect(Object.getOwnPropertyDescriptor(Tuple, "of")).toEqual({
+      value: Tuple.of,
+      writable: true,
+      enumerable: false,
+      configurable: true,
+    });
+  });
+
+  it("cannot be called as a constructor", () => {
+    expect(() => new (Tuple.of as any)()).toThrow(TypeError);
+  });
+
+  it("generates a Tuple from the arguments", () => {
+    const tup1 = Tuple.of(1, 2);
+    const tup2 = Tuple(1, 2);
+    expect(tup1).toBe(tup2);
+  });
+});

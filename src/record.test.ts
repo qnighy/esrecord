@@ -139,6 +139,10 @@ describe("Record.fromEntries", () => {
     });
   });
 
+  it("cannot be called as a constructor", () => {
+    expect(() => new (Record.fromEntries as any)()).toThrow(TypeError);
+  });
+
   it("generates a Record from an array of entries", () => {
     const rec1 = Record.fromEntries([
       ["a", 1],
@@ -179,6 +183,10 @@ describe("Record[Symbol.hasInstance]", () => {
       enumerable: false,
       configurable: true,
     });
+  });
+
+  it("cannot be called as a constructor", () => {
+    expect(() => new (Record[Symbol.hasInstance] as any)()).toThrow(TypeError);
   });
 
   it("returns true for Record wrappers", () => {
