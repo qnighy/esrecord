@@ -1,3 +1,5 @@
+import type { Tuple } from "./tuple.ts";
+
 /**
  * A dummy value to use as a brand for the {@link ESRecord} type.
  */
@@ -19,8 +21,8 @@ export declare const esTupleBrand: unique symbol;
  * A replacement type for the future primitive Tuple type,
  * which will presumably be written as `#[value, value]`.
  */
-export type ESTuple<T> = Readonly<T> & { [esTupleBrand]: "ESTuple" };
-export type AnyESTuple = ESTuple<readonly unknown[]>;
+export type ESTuple<A extends any[]> = Readonly<A> & { [esTupleBrand]: "ESTuple" } & Tuple<A[number]>;
+export type AnyESTuple = ESTuple<unknown[]>;
 
 
 export const primitiveRecords: WeakSet<AnyESRecord> = new WeakSet();

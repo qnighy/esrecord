@@ -40,7 +40,14 @@ export interface TupleConstructor {
    */
   of<A extends any[]>(...items: A): ESTuple<A>;
 
-  prototype: readonly any[];
+  prototype: Tuple<any>;
+}
+
+/**
+ * The type of the {@link Tuple} instance,
+ * as analogous to {@link Array} and {@link ReadonlyArray}.
+ */
+export interface Tuple<T> {
 }
 
 export const Tuple: TupleConstructor = function Tuple<A extends any[]>(...items: A): ESTuple<A> {
@@ -55,7 +62,7 @@ export const Tuple: TupleConstructor = function Tuple<A extends any[]>(...items:
   return tupleInterner.intern(items, () => createPrimitiveTuple(items)) as ESTuple<A>;
 } as TupleConstructor;
 
-const tuplePrototype: readonly any[] = Object.create(null) as readonly any[];
+const tuplePrototype: Tuple<any> = Object.create(null) as Tuple<any>;
 
 const tupleStaticMethods = {
   from(items: ArrayLike<unknown> | Iterable<unknown>, mapfn: ((v: unknown, k: number) => unknown) | undefined = undefined, thisArg: any = undefined): ESTuple<unknown[]> {
