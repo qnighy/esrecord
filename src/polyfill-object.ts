@@ -8,9 +8,9 @@ import { TupleToObject } from "./tuple.ts";
 export function ObjectCall(val: unknown): object {
   if (typeof val === "object" && val != null) {
     if (isPrimitiveRecord(val)) {
-      return RecordToObject(val as Record<string, unknown>);
+      return RecordToObject(val);
     } else if (isPrimitiveTuple(val)) {
-      return TupleToObject(val as readonly unknown[]);
+      return TupleToObject(val);
     }
   }
   return Object(val);

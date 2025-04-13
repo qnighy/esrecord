@@ -1,13 +1,40 @@
+import type { AnyESRecord, ESRecord } from "./types.ts";
 import { Interner } from "./interner.ts";
 import { isObject, primitiveRecords } from "./primitives.ts";
 
-const recordInterner = new Interner<readonly unknown[], Record<string, unknown>>();
+const recordInterner = new Interner<readonly unknown[], AnyESRecord>();
 /**
  * Represents the record object's [[RecordData]] internal slot.
  */
-const recordDataRef = new WeakMap<Record<string, unknown>, Record<string, unknown>>();
+const recordDataRef = new WeakMap<object, AnyESRecord>();
 
-export function Record(arg: Record<string, unknown>): Record<string, unknown> {
+/**
+ * The type of the {@link Record} constructor.
+ */
+export interface RecordConstructor {
+  /**
+   * Creates a new primitive Record value from the given object.
+   *
+   * @param arg the object providing the key-value pairs for the Record.
+   */
+  <T>(arg: T): ESRecord<T>;
+
+  /**
+   * Creates a new primitive Record value from the given key-value pairs.
+   * @param entries the key-value pairs to create the Record from.
+   */
+  fromEntries<K extends string, V>(entries: Iterable<readonly [K, V]>): ESRecord<{ [k in K]?: V; }>;
+
+  /**
+   * Checks if the given object is a Record wrapper object.
+   * @param obj the object to test against.
+   */
+  [Symbol.hasInstance](obj: unknown): boolean;
+
+  prototype: null;
+}
+
+export const Record: RecordConstructor = function Record<T>(arg: T): ESRecord<T> {
   if (new.target != null) {
     throw new TypeError("Record is not a constructor");
   }
@@ -15,12 +42,51 @@ export function Record(arg: Record<string, unknown>): Record<string, unknown> {
   const entries = recordSourceEntries(obj);
   entries.sort(([a], [b]) => a < b ? -1 : a > b ? 1 : 0);
   const key = entries.flatMap(([key, value]) => [key, value]);
-  return recordInterner.intern(key, () => createPrimitiveRecord(entries));
-}
+  return recordInterner.intern(key, () => createPrimitiveRecord(entries)) as ESRecord<T>;
+} as RecordConstructor;
 
-(Record as any).prototype = null;
+const recordMethods = {
+  fromEntries<K extends string, V>(entries: Iterable<readonly [K, V]>): ESRecord<{ [k in K]?: V; }> {
+    const entriesArray: [string, unknown][] = [];
+    for (const [key, value] of entries) {
+      entriesArray.push([key, value]);
+    }
+    entriesArray.sort(([a], [b]) => a < b ? -1 : a > b ? 1 : 0);
+    const key = entriesArray.flatMap(([key, value]) => [key, value]);
+    return recordInterner.intern(key, () => createPrimitiveRecord(entriesArray)) as ESRecord<{ [k in K]?: V; }>;
+  },
 
-function createPrimitiveRecord(entries: [string, unknown][]): Record<string, unknown> {
+  [Symbol.hasInstance](obj: unknown): boolean {
+    return typeof obj === "object" && obj != null && Boolean(getRecordPrimitive(obj));
+  },
+};
+
+Object.defineProperty(Record, "name", {
+  value: "Record",
+  writable: false,
+  enumerable: false,
+  configurable: true,
+});
+Object.defineProperty(Record, "fromEntries", {
+  value: recordMethods.fromEntries,
+  writable: true,
+  enumerable: false,
+  configurable: true,
+});
+Object.defineProperty(Record, Symbol.hasInstance, {
+  value: recordMethods[Symbol.hasInstance],
+  writable: false,
+  enumerable: false,
+  configurable: true,
+});
+Object.defineProperty(Record, "prototype", {
+  value: null,
+  writable: false,
+  enumerable: false,
+  configurable: false,
+});
+
+function createPrimitiveRecord(entries: [string, unknown][]): AnyESRecord {
   const rec: Record<string, unknown> = Object.create(null);
   for (const [key, value] of entries) {
     // It needs not be Object.defineProperty because the object
@@ -28,14 +94,14 @@ function createPrimitiveRecord(entries: [string, unknown][]): Record<string, unk
     rec[key] = value;
   }
   Object.freeze(rec);
-  primitiveRecords.add(rec);
-  return rec;
+  primitiveRecords.add(rec as AnyESRecord);
+  return rec as AnyESRecord;
 }
 
 /**
  * Convert a Record primitive to a Record object.
  */
-export function RecordToObject(record: Record<string, unknown>): Record<string, unknown> {
+export function RecordToObject<T>(record: ESRecord<T>): T {
   const obj = { ...record };
   recordDataRef.set(obj, record);
   Object.freeze(obj);
@@ -46,8 +112,8 @@ export function RecordToObject(record: Record<string, unknown>): Record<string, 
  * Checks if the given object is a Record object,
  * and if so, returns the Record primitive it wraps.
  */
-export function getRecordPrimitive(maybeRecord: unknown): Record<string, unknown> | undefined {
-  return recordDataRef.get(maybeRecord as Record<string, unknown>);
+export function getRecordPrimitive(maybeRecord: unknown): AnyESRecord | undefined {
+  return recordDataRef.get(maybeRecord as object);
 }
 
 function ToObject<T>(arg: T): T & object {

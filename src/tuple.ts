@@ -1,5 +1,6 @@
+import type { AnyESTuple } from "./types.ts";
 import { Interner } from "./interner.ts";
-import { isObject, primitiveRecords, primitiveTuples } from "./primitives.ts";
+import { isObject, primitiveTuples } from "./primitives.ts";
 
 const tupleInterner = new Interner<readonly unknown[], readonly unknown[]>();
 /**
@@ -30,7 +31,7 @@ Object.defineProperty(Tuple, "prototype", {
 function createPrimitiveTuple(items: readonly unknown[]): readonly unknown[] {
   const tup = createMinArray(items);
   Object.freeze(tup);
-  primitiveTuples.add(tup);
+  primitiveTuples.add(tup as readonly unknown[] as AnyESTuple);
   return tup;
 }
 
