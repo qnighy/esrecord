@@ -1,6 +1,5 @@
-import type { AnyESTuple } from "./types.ts";
 import { Interner } from "./interner.ts";
-import { isObject, primitiveTuples } from "./primitives.ts";
+import { isObject, primitiveTuples, type AnyESTuple } from "./primitives.ts";
 
 const tupleInterner = new Interner<readonly unknown[], readonly unknown[]>();
 /**

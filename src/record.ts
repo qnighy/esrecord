@@ -1,6 +1,5 @@
-import type { AnyESRecord, ESRecord } from "./types.ts";
 import { Interner } from "./interner.ts";
-import { isObject, primitiveRecords } from "./primitives.ts";
+import { isObject, primitiveRecords, type AnyESRecord, type ESRecord } from "./primitives.ts";
 
 const recordInterner = new Interner<readonly unknown[], AnyESRecord>();
 /**
