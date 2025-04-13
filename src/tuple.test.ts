@@ -157,3 +157,59 @@ describe("Tuple.prototype[Symbol.toStringTag]", () => {
     });
   });
 });
+
+describe("Tuple.prototype.at", () => {
+  it("is a writable, non-enumerable, and configurable property", () => {
+    expect(Object.getOwnPropertyDescriptor(Tuple.prototype, "at")).toEqual({
+      value: Tuple.prototype.at,
+      writable: true,
+      enumerable: false,
+      configurable: true,
+    });
+  });
+
+  it("returns the element at the specified index", () => {
+    const tup = Tuple(1, 2);
+    expect(tup.at(0)).toBe(1);
+    expect(tup.at(1)).toBe(2);
+  });
+
+  it("returns the element at the specified negative index", () => {
+    const tup = Tuple(1, 2);
+    expect(tup.at(-1)).toBe(2);
+    expect(tup.at(-2)).toBe(1);
+  });
+
+  it("returns undefined for out-of-bounds indices", () => {
+    const tup = Tuple(1, 2);
+    expect(tup.at(-3)).toBe(undefined);
+    expect(tup.at(3)).toBe(undefined);
+  });
+});
+
+describe("Tuple.prototype.valueOf", () => {
+  it("is a writable, non-enumerable, and configurable property", () => {
+    expect(Object.getOwnPropertyDescriptor(Tuple.prototype, "valueOf")).toEqual({
+      value: Tuple.prototype.valueOf,
+      writable: true,
+      enumerable: false,
+      configurable: true,
+    });
+  });
+
+  it("returns the tuple itself", () => {
+    const tup = Tuple(1, 2);
+    expect(tup.valueOf()).toBe(tup);
+  });
+
+  it("returns the tuple primitive when called with a wrapper object", () => {
+    const tup = Tuple(1, 2);
+    const wrapper = ObjectCall(tup);
+    expect(wrapper.valueOf()).toBe(tup);
+  });
+
+  it("throws TypeError for non-Tuple values", () => {
+    const obj = [1, 2, 3];
+    expect(() => Tuple.prototype.valueOf.call(obj)).toThrow(TypeError);
+  });
+});

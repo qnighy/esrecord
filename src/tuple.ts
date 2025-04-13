@@ -170,11 +170,27 @@ function thisTupleValue(value: unknown): AnyESTuple {
   throw new TypeError("Not a Tuple value nor a Tuple object");
 }
 
+const arrayifyMemo = new WeakMap<AnyESTuple, readonly unknown[]>();
+function arrayify(value: unknown): readonly unknown[] {
+  const tup = thisTupleValue(value);
+  const cached = arrayifyMemo.get(tup);
+  if (cached != null) {
+    return cached;
+  }
+  const result = Array.from(tup);
+  arrayifyMemo.set(tup, result);
+  return result;
+}
+
 const tupleInstanceMethods = {
   constructor: Tuple,
   [Symbol.toStringTag]: "Tuple",
-  // at(index: number): T | undefined;
-  // valueOf(): ESTuple<T[]>;
+  at(index: number): unknown {
+    return arrayify(this).at(index);
+  },
+  valueOf(): ESTuple<unknown[]> {
+    return thisTupleValue(this);
+  },
   // concat(...args: ConcatArray<T>[]): ESTuple<T[]>;
   // concat(...args: (T | ConcatArray<T>)[]): ESTuple<T[]>;
   // find<S extends T>(predicate: (value: T, index: number, tuple: ESTuple<T[]>) => value is S, thisArg?: any): S | undefined;
