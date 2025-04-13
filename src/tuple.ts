@@ -170,6 +170,63 @@ function thisTupleValue(value: unknown): AnyESTuple {
   throw new TypeError("Not a Tuple value nor a Tuple object");
 }
 
+const tupleInstanceMethods = {
+  constructor: Tuple,
+  [Symbol.toStringTag]: "Tuple",
+  // at(index: number): T | undefined;
+  // valueOf(): ESTuple<T[]>;
+  // concat(...args: ConcatArray<T>[]): ESTuple<T[]>;
+  // concat(...args: (T | ConcatArray<T>)[]): ESTuple<T[]>;
+  // find<S extends T>(predicate: (value: T, index: number, tuple: ESTuple<T[]>) => value is S, thisArg?: any): S | undefined;
+  // find(predicate: (value: T, index: number, tuple: ESTuple<T[]>) => unknown, thisArg?: any): T | undefined;
+  // findIndex(predicate: (value: T, index: number, tuple: ESTuple<T[]>) => unknown, thisArg?: any): number;
+  // findLast<S extends T>(predicate: (value: T, index: number, tuple: ESTuple<T[]>) => value is S, thisArg?: any): S | undefined;
+  // findLast(predicate: (value: T, index: number, tuple: ESTuple<T[]>) => unknown, thisArg?: any): T | undefined;
+  // findLastIndex(predicate: (value: T, index: number, tuple: ESTuple<T[]>) => unknown, thisArg?: any): number;
+  // lastIndexOf(searchElement: T, fromIndex?: number): number;
+  // slice(start?: number, end?: number): ESTuple<T[]>;
+  // includes(searchElement: T, fromIndex?: number): boolean;
+  // indexOf(searchElement: T, fromIndex?: number): number;
+  // join(separator?: string): string;
+  // keys(): ArrayIterator<number>;
+  // entries(): ArrayIterator<[number, T]>;
+  // values(): ArrayIterator<T>;
+  // forEach(callbackfn: (value: T, index: number, tuple: ESTuple<T[]>) => void, thisArg?: any): void;
+  // filter<S extends T>(callbackfn: (value: T, index: number, tuple: ESTuple<T[]>) => value is S, thisArg?: any): ESTuple<S[]>;
+  // filter(callbackfn: (value: T, index: number, tuple: ESTuple<T[]>) => unknown, thisArg?: any): ESTuple<T[]>;
+  // flat<A, D extends number = 1>(this: A, depth?: D): ESTuple<FlatArray<A, D>[]>;
+  // flatMap<U, This = undefined>(mapperFunction: (this: This, value: T, index: number, tuple: ESTuple<T[]>) => U | ESTuple<U[]>, thisArg?: This): ESTuple<U[]>;
+  // map<U>(callbackfn: (value: T, index: number, tuple: ESTuple<T[]>) => U, thisArg?: any): U[];
+  // every<S extends T>(callbackfn: (value: T, index: number, tuple: ESTuple<T[]>) => value is S, thisArg?: any): this is Tuple<S>;
+  // every(callbackfn: (value: T, index: number, tuple: ESTuple<T[]>) => unknown, thisArg?: any): boolean;
+  // some(callbackfn: (value: T, index: number, tuple: ESTuple<T[]>) => unknown, thisArg?: any): boolean;
+  // reduce(callbackfn: (previousValue: T, currentValue: T, currentIndex: number, tuple: ESTuple<T[]>) => T): T;
+  // reduce(callbackfn: (previousValue: T, currentValue: T, currentIndex: number, tuple: ESTuple<T[]>) => T, initialValue: T): T;
+  // reduce<U>(callbackfn: (previousValue: U, currentValue: T, currentIndex: number, tuple: ESTuple<T[]>) => U, initialValue: U): U;
+  // reduceRight(callbackfn: (previousValue: T, currentValue: T, currentIndex: number, tuple: ESTuple<T[]>) => T): T;
+  // reduceRight(callbackfn: (previousValue: T, currentValue: T, currentIndex: number, tuple: ESTuple<T[]>) => T, initialValue: T): T;
+  // reduceRight<U>(callbackfn: (previousValue: U, currentValue: T, currentIndex: number, tuple: ESTuple<T[]>) => U, initialValue: U): U;
+  // toReversed(): ESTuple<T[]>;
+  // toSorted(comparefn?: (a: T, b: T) => number): ESTuple<T[]>;
+  // toSpliced(start: number, deleteCount: number, ...items: T[]): ESTuple<T[]>;
+  // toSpliced(start: number, deleteCount?: number): ESTuple<T[]>;
+  // with(index: number, value: T): ESTuple<T[]>;
+  // toLocaleString(): string;
+  // toString(): string;
+  // [Symbol.iterator](): ArrayIterator<T>;
+};
+
+for (const key of Reflect.ownKeys(tupleInstanceMethods)) {
+  const desc = Object.getOwnPropertyDescriptor(tupleInstanceMethods, key);
+  Object.defineProperty(tuplePrototype, key, {
+    ...desc!,
+    enumerable: false,
+  });
+}
+Object.defineProperty(tuplePrototype, Symbol.toStringTag, {
+  writable: false,
+});
+
 /**
  * Like Array.from, but initializes an Array-like ordinary object.
  */

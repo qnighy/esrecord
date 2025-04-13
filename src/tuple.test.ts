@@ -127,3 +127,33 @@ describe("Tuple.prototype", () => {
     });
   });
 });
+
+describe("Tuple.prototype.constructor", () => {
+  it("is Tuple", () => {
+    expect(Tuple.prototype.constructor).toBe(Tuple);
+  });
+
+  it("is writable, non-enumerable, and configurable", () => {
+    expect(Object.getOwnPropertyDescriptor(Tuple.prototype, "constructor")).toEqual({
+      value: Tuple.prototype.constructor,
+      writable: true,
+      enumerable: false,
+      configurable: true,
+    });
+  });
+});
+
+describe("Tuple.prototype[Symbol.toStringTag]", () => {
+  it("is 'Tuple'", () => {
+    expect(Tuple.prototype[Symbol.toStringTag]).toBe("Tuple");
+  });
+
+  it("is non-writable, non-enumerable, and configurable", () => {
+    expect(Object.getOwnPropertyDescriptor(Tuple.prototype, Symbol.toStringTag)).toEqual({
+      value: Tuple.prototype[Symbol.toStringTag],
+      writable: false,
+      enumerable: false,
+      configurable: true,
+    });
+  });
+});
