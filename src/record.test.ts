@@ -4,6 +4,10 @@ import { ObjectCall } from "./polyfill-object.ts";
 import { Tuple } from "./tuple.ts";
 
 describe("Record", () => {
+  it("throws TypeError when called as a constructor", () => {
+    expect(() => new (Record as any)({})).toThrow(TypeError);
+  });
+
   it("returns the same value for the equivalent input", () => {
     const rec1 = Record({ a: 1, b: 2 });
     const rec2 = Record({ a: 1, b: 2 });
@@ -108,5 +112,100 @@ describe("Record", () => {
       record: Record({ a: 1 }),
       tuple: Tuple(1, 2),
     })).not.toThrow();
+  });
+});
+
+describe("Record.name", () => {
+  it("is 'Record'", () => {
+    expect(Record.name).toBe("Record");
+  });
+  it("is a non-writable, non-enumerable, and configurable property", () => {
+    expect(Object.getOwnPropertyDescriptor(Record, "name")).toEqual({
+      value: Record.name,
+      writable: false,
+      enumerable: false,
+      configurable: true,
+    });
+  });
+});
+
+describe("Record.fromEntries", () => {
+  it("is a writable, non-enumerable, and configurable property", () => {
+    expect(Object.getOwnPropertyDescriptor(Record, "fromEntries")).toEqual({
+      value: Record.fromEntries,
+      writable: true,
+      enumerable: false,
+      configurable: true,
+    });
+  });
+
+  it("generates a Record from an array of entries", () => {
+    const rec1 = Record.fromEntries([
+      ["a", 1],
+      ["b", 2],
+    ]);
+    const rec2 = Record({ a: 1, b: 2 });
+    expect(rec1).toBe(rec2);
+  });
+
+  it("throws TypeError for undefined", () => {
+    expect(() => Record.fromEntries(undefined as any)).toThrow(TypeError);
+  });
+
+  it("throws TypeError for null", () => {
+    expect(() => Record.fromEntries(null as any)).toThrow(TypeError);
+  });
+
+  it("throws TypeError for non-iterable entries", () => {
+    expect(() => Record.fromEntries({} as any)).toThrow(TypeError);
+  });
+
+  it("generates a Record from an iterable of entries", () => {
+    const entries = (function* (): Generator<[string, number]> {
+      yield ["a", 1];
+      yield ["b", 2];
+    })();
+    const rec1 = Record.fromEntries(entries);
+    const rec2 = Record({ a: 1, b: 2 });
+    expect(rec1).toBe(rec2);
+  });
+});
+
+describe("Record[Symbol.hasInstance]", () => {
+  it("is a non-writable, non-enumerable, and configurable property", () => {
+    expect(Object.getOwnPropertyDescriptor(Record, Symbol.hasInstance)).toEqual({
+      value: Record[Symbol.hasInstance],
+      writable: false,
+      enumerable: false,
+      configurable: true,
+    });
+  });
+
+  it("returns true for Record wrappers", () => {
+    const obj = ObjectCall(Record({}));
+    expect(obj).toBeInstanceOf(Record);
+  });
+
+  it("returns false for non-Record instances", () => {
+    expect({}).not.toBeInstanceOf(Record);
+  });
+
+  it("returns false for Record primitives", () => {
+    const rec = Record({ a: 1, b: 2 });
+    expect(rec).not.toBeInstanceOf(Record);
+  });
+});
+
+describe("Record.prototype", () => {
+  it("is null", () => {
+    expect(Record.prototype).toBe(null);
+  });
+  it("is a non-writable, non-enumerable, and configurable property", () => {
+    expect(Object.getOwnPropertyDescriptor(Record, "prototype")).toEqual({
+      value: Record.prototype,
+      writable: false,
+      enumerable: false,
+      configurable: false,
+    });
   });
 });

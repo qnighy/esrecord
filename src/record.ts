@@ -47,13 +47,8 @@ export const Record: RecordConstructor = function Record<T>(arg: T): ESRecord<T>
 
 const recordMethods = {
   fromEntries<K extends string, V>(entries: Iterable<readonly [K, V]>): ESRecord<{ [k in K]?: V; }> {
-    const entriesArray: [string, unknown][] = [];
-    for (const [key, value] of entries) {
-      entriesArray.push([key, value]);
-    }
-    entriesArray.sort(([a], [b]) => a < b ? -1 : a > b ? 1 : 0);
-    const key = entriesArray.flatMap(([key, value]) => [key, value]);
-    return recordInterner.intern(key, () => createPrimitiveRecord(entriesArray)) as ESRecord<{ [k in K]?: V; }>;
+    const obj = Object.fromEntries(entries);
+    return Record(obj) as ESRecord<{ [k in K]?: V; }>;
   },
 
   [Symbol.hasInstance](obj: unknown): boolean {
