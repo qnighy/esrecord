@@ -1,5 +1,5 @@
 import { Interner } from "./interner.ts";
-import { isObject, primitiveTuples, type AnyESTuple, type ESTuple } from "./primitives.ts";
+import { isObject, isPrimitiveTuple, primitiveTuples, type AnyESTuple, type ESTuple } from "./primitives.ts";
 
 const tupleInterner = new Interner<readonly unknown[], AnyESTuple>();
 /**
@@ -48,6 +48,48 @@ export interface TupleConstructor {
  * as analogous to {@link Array} and {@link ReadonlyArray}.
  */
 export interface Tuple<T> {
+  at(index: number): T | undefined;
+  valueOf(): ESTuple<T[]>;
+  [Symbol.toStringTag]: "Tuple";
+  slice(start?: number, end?: number): ESTuple<T[]>;
+  concat(...args: ConcatArray<T>[]): ESTuple<T[]>;
+  concat(...args: (T | ConcatArray<T>)[]): ESTuple<T[]>;
+  includes(searchElement: T, fromIndex?: number): boolean;
+  indexOf(searchElement: T, fromIndex?: number): number;
+  join(separator?: string): string;
+  lastIndexOf(searchElement: T, fromIndex?: number): number;
+  entries(): ArrayIterator<[number, T]>;
+  every<S extends T>(callbackfn: (value: T, index: number, tuple: ESTuple<T[]>) => value is S, thisArg?: any): this is Tuple<S>;
+  every(callbackfn: (value: T, index: number, tuple: ESTuple<T[]>) => unknown, thisArg?: any): boolean;
+  filter<S extends T>(callbackfn: (value: T, index: number, tuple: ESTuple<T[]>) => value is S, thisArg?: any): ESTuple<S[]>;
+  filter(callbackfn: (value: T, index: number, tuple: ESTuple<T[]>) => unknown, thisArg?: any): ESTuple<T[]>;
+  find<S extends T>(predicate: (value: T, index: number, tuple: ESTuple<T[]>) => value is S, thisArg?: any): S | undefined;
+  find(predicate: (value: T, index: number, tuple: ESTuple<T[]>) => unknown, thisArg?: any): T | undefined;
+  findIndex(predicate: (value: T, index: number, tuple: ESTuple<T[]>) => unknown, thisArg?: any): number;
+  findLast<S extends T>(predicate: (value: T, index: number, tuple: ESTuple<T[]>) => value is S, thisArg?: any): S | undefined;
+  findLast(predicate: (value: T, index: number, tuple: ESTuple<T[]>) => unknown, thisArg?: any): T | undefined;
+  findLastIndex(predicate: (value: T, index: number, tuple: ESTuple<T[]>) => unknown, thisArg?: any): number;
+  flat<A, D extends number = 1>(this: A, depth?: D): ESTuple<FlatArray<A, D>[]>;
+  flatMap<U, This = undefined>(mapperFunction: (this: This, value: T, index: number, tuple: ESTuple<T[]>) => U | ESTuple<U[]>, thisArg?: This): ESTuple<U[]>;
+  forEach(callbackfn: (value: T, index: number, tuple: ESTuple<T[]>) => void, thisArg?: any): void;
+  keys(): ArrayIterator<number>;
+  map<U>(callbackfn: (value: T, index: number, tuple: ESTuple<T[]>) => U, thisArg?: any): U[];
+  reduce(callbackfn: (previousValue: T, currentValue: T, currentIndex: number, tuple: ESTuple<T[]>) => T): T;
+  reduce(callbackfn: (previousValue: T, currentValue: T, currentIndex: number, tuple: ESTuple<T[]>) => T, initialValue: T): T;
+  reduce<U>(callbackfn: (previousValue: U, currentValue: T, currentIndex: number, tuple: ESTuple<T[]>) => U, initialValue: U): U;
+  reduceRight(callbackfn: (previousValue: T, currentValue: T, currentIndex: number, tuple: ESTuple<T[]>) => T): T;
+  reduceRight(callbackfn: (previousValue: T, currentValue: T, currentIndex: number, tuple: ESTuple<T[]>) => T, initialValue: T): T;
+  reduceRight<U>(callbackfn: (previousValue: U, currentValue: T, currentIndex: number, tuple: ESTuple<T[]>) => U, initialValue: U): U;
+  some(callbackfn: (value: T, index: number, tuple: ESTuple<T[]>) => unknown, thisArg?: any): boolean;
+  toLocaleString(): string;
+  toString(): string;
+  values(): ArrayIterator<T>;
+  [Symbol.iterator](): ArrayIterator<T>;
+  toReversed(): ESTuple<T[]>;
+  toSorted(comparefn?: (a: T, b: T) => number): ESTuple<T[]>;
+  toSpliced(start: number, deleteCount: number, ...items: T[]): ESTuple<T[]>;
+  toSpliced(start: number, deleteCount?: number): ESTuple<T[]>;
+  with(index: number, value: T): ESTuple<T[]>;
 }
 
 export const Tuple: TupleConstructor = function Tuple<A extends any[]>(...items: A): ESTuple<A> {
@@ -115,6 +157,17 @@ export function TupleToObject<A extends any[]>(tuple: ESTuple<A>): Readonly<A> {
   tupleDataRef.set(obj, tuple);
   Object.freeze(obj);
   return obj as readonly unknown[] as Readonly<A>;
+}
+
+function thisTupleValue(value: unknown): AnyESTuple {
+  if (isPrimitiveTuple(value)) {
+    return value;
+  }
+  const prim = getTuplePrimitive(value);
+  if (prim != null) {
+    return prim;
+  }
+  throw new TypeError("Not a Tuple value nor a Tuple object");
 }
 
 /**
