@@ -68,6 +68,12 @@ const tupleStaticMethods = {
   },
 };
 
+Object.defineProperty(Tuple, "name", {
+  value: "Tuple",
+  writable: false,
+  enumerable: false,
+  configurable: true,
+});
 Object.defineProperty(Tuple, "from", {
   value: tupleStaticMethods.from,
   writable: true,

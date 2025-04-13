@@ -50,9 +50,9 @@ describe("Tuple", () => {
 });
 
 describe("Tuple.name", () => {
-  // it("is 'Tuple'", () => {
-  //   expect(Tuple.name).toBe("Tuple");
-  // });
+  it("is 'Tuple'", () => {
+    expect(Tuple.name).toBe("Tuple");
+  });
   it("is a non-writable, non-enumerable, and configurable property", () => {
     expect(Object.getOwnPropertyDescriptor(Tuple, "name")).toEqual({
       value: Tuple.name,
