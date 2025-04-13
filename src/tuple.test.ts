@@ -213,3 +213,35 @@ describe("Tuple.prototype.valueOf", () => {
     expect(() => Tuple.prototype.valueOf.call(obj)).toThrow(TypeError);
   });
 });
+
+describe("Tuple.prototype.find", () => {
+  it("returns the first element that satisfies the predicate", () => {
+    const tup = Tuple("a", "b", "c", "d");
+    const result = tup.find((s) => /[bd]/.test(s));
+    expect(result).toBe("b");
+  });
+});
+
+describe("Tuple.prototype.findIndex", () => {
+  it("returns the index of the first element that satisfies the predicate", () => {
+    const tup = Tuple("a", "b", "c", "d");
+    const result = tup.findIndex((s) => /[bd]/.test(s));
+    expect(result).toBe(1);
+  });
+});
+
+describe("Tuple.prototype.findLast", () => {
+  it("returns the last element that satisfies the predicate", () => {
+    const tup = Tuple("a", "b", "c", "d");
+    const result = tup.findLast((s) => /[bd]/.test(s));
+    expect(result).toBe("d");
+  });
+});
+
+describe("Tuple.prototype.findLastIndex", () => {
+  it("returns the index of the last element that satisfies the predicate", () => {
+    const tup = Tuple("a", "b", "c", "d");
+    const result = tup.findLastIndex((s) => /[bd]/.test(s));
+    expect(result).toBe(3);
+  });
+});
