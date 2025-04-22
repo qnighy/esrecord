@@ -1,11 +1,7 @@
 import { Interner } from "./interner.ts";
-import { isObject, primitiveRecords, type AnyESRecord, type ESRecord } from "./primitives.ts";
+import { allocateRecord, isObject, isRecordWrapper, type AnyESRecord, type ESRecord } from "./primitives.ts";
 
 const recordInterner = new Interner<readonly unknown[], AnyESRecord>();
-/**
- * Represents the record object's [[RecordData]] internal slot.
- */
-const recordDataRef = new WeakMap<object, AnyESRecord>();
 
 /**
  * The type of the {@link Record} constructor.
@@ -51,7 +47,7 @@ const recordStaticMethods = {
   },
 
   [Symbol.hasInstance](obj: unknown): boolean {
-    return typeof obj === "object" && obj != null && Boolean(getRecordPrimitive(obj));
+    return typeof obj === "object" && obj != null && isRecordWrapper(obj);
   },
 };
 
@@ -88,7 +84,7 @@ function createPrimitiveRecord(entries: [string, unknown][]): AnyESRecord {
     rec[key] = value;
   }
   Object.freeze(rec);
-  primitiveRecords.add(rec as AnyESRecord);
+  allocateRecord(rec, undefined);
   return rec as AnyESRecord;
 }
 
@@ -97,17 +93,9 @@ function createPrimitiveRecord(entries: [string, unknown][]): AnyESRecord {
  */
 export function RecordToObject<T>(record: ESRecord<T>): T {
   const obj = { ...record };
-  recordDataRef.set(obj, record);
+  allocateRecord(obj, record);
   Object.freeze(obj);
   return obj;
-}
-
-/**
- * Checks if the given object is a Record object,
- * and if so, returns the Record primitive it wraps.
- */
-export function getRecordPrimitive(maybeRecord: unknown): AnyESRecord | undefined {
-  return recordDataRef.get(maybeRecord as object);
 }
 
 function ToObject<T>(arg: T): T & object {
