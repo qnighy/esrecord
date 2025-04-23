@@ -1,11 +1,7 @@
 import { Interner } from "./interner.ts";
-import { isObject, isPrimitiveTuple, primitiveTuples, type AnyESTuple, type ESTuple } from "./primitives.ts";
+import { allocateTuple, extractPrimitiveTuple, isObject, type AnyESTuple, type ESTuple } from "./primitives.ts";
 
 const tupleInterner = new Interner<readonly unknown[], AnyESTuple>();
-/**
- * Represents the tuple object's [[TupleData]] internal slot.
- */
-const tupleDataRef = new WeakMap<object, AnyESTuple>();
 
 /**
  * The type of the {@link Tuple} constructor.
@@ -145,7 +141,7 @@ Object.defineProperty(Tuple, "prototype", {
 function createPrimitiveTuple(items: readonly unknown[]): AnyESTuple {
   const tup = createMinArray(items);
   Object.freeze(tup);
-  primitiveTuples.add(tup as readonly unknown[] as AnyESTuple);
+  allocateTuple(tup, undefined);
   return tup as readonly unknown[] as AnyESTuple;
 }
 
@@ -154,20 +150,9 @@ function createPrimitiveTuple(items: readonly unknown[]): AnyESTuple {
  */
 export function TupleToObject<A extends any[]>(tuple: ESTuple<A>): Readonly<A> {
   const obj = createMinArray(tuple);
-  tupleDataRef.set(obj, tuple);
+  allocateTuple(obj, tuple);
   Object.freeze(obj);
   return obj as readonly unknown[] as Readonly<A>;
-}
-
-function thisTupleValue(value: unknown): AnyESTuple {
-  if (isPrimitiveTuple(value)) {
-    return value;
-  }
-  const prim = getTuplePrimitive(value);
-  if (prim != null) {
-    return prim;
-  }
-  throw new TypeError("Not a Tuple value nor a Tuple object");
 }
 
 const arrayifyMemo = new WeakMap<AnyESTuple, readonly unknown[]>();
@@ -194,30 +179,30 @@ const tupleInstanceMethods = {
   constructor: Tuple,
   [Symbol.toStringTag]: "Tuple",
   at(index: number): unknown {
-    return arrayify(thisTupleValue(this)).at(index);
+    return arrayify(extractPrimitiveTuple(this)).at(index);
   },
   valueOf(): AnyESTuple {
-    return thisTupleValue(this);
+    return extractPrimitiveTuple(this);
   },
   // concat(...args: ConcatArray<T>[]): ESTuple<T[]>;
   // concat(...args: (T | ConcatArray<T>)[]): ESTuple<T[]>;
   find(predicate: (value: unknown, index: number, tuple: AnyESTuple) => unknown, thisArg?: any): unknown {
-    const tup = thisTupleValue(this);
+    const tup = extractPrimitiveTuple(this);
     const arr = arrayify(tup);
     return arr.find(wrapCallback(tup, predicate), thisArg);
   },
   findIndex(predicate: (value: unknown, index: number, tuple: AnyESTuple) => unknown, thisArg?: any): number {
-    const tup = thisTupleValue(this);
+    const tup = extractPrimitiveTuple(this);
     const arr = arrayify(tup);
     return arr.findIndex(wrapCallback(tup, predicate), thisArg);
   },
   findLast(predicate: (value: unknown, index: number, tuple: AnyESTuple) => unknown, thisArg?: any): unknown {
-    const tup = thisTupleValue(this);
+    const tup = extractPrimitiveTuple(this);
     const arr = arrayify(tup);
     return arr.findLast(wrapCallback(tup, predicate), thisArg);
   },
   findLastIndex(predicate: (value: unknown, index: number, tuple: AnyESTuple) => unknown, thisArg?: any): number {
-    const tup = thisTupleValue(this);
+    const tup = extractPrimitiveTuple(this);
     const arr = arrayify(tup);
     return arr.findLastIndex(wrapCallback(tup, predicate), thisArg);
   },
@@ -274,12 +259,4 @@ function createMinArray(items: readonly unknown[]): unknown[] {
     enumerable: false,
   });
   return arr;
-}
-
-/**
- * Checks if the given object is a Tuple wrapper object,
- * and if so, returns the Tuple primitive it wraps.
- */
-export function getTuplePrimitive(maybeTuple: unknown): AnyESTuple | undefined {
-  return tupleDataRef.get(maybeTuple as object);
 }
